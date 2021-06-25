@@ -1,12 +1,7 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-
-using System;
-using System.Linq;
+﻿using System;
+using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
@@ -18,7 +13,43 @@ namespace AtomicSharp.UnifiedAuth
     {
         public static int Main(string[] args)
         {
-            Log.Logger = new LoggerConfiguration()
+            var configuration = GetConfiguration();
+            var appName = configuration["App:AppName"];
+
+            Log.Logger = CreateLogger();
+
+            try
+            {
+                Log.Information("Configuring web host ({AppName})...", appName);
+                var host = CreateHostBuilder(args).Build();
+
+                Log.Information("Starting web host ({AppName})...", appName);
+                host.Run();
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Web host ({AppName}) terminated unexpectedly!", appName);
+                return 1;
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
+        }
+
+        private static IConfiguration GetConfiguration()
+        {
+            return new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", false)
+                .Build();
+        }
+
+        private static ILogger CreateLogger()
+        {
+            return new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
@@ -30,40 +61,9 @@ namespace AtomicSharp.UnifiedAuth
                     "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}",
                     theme: AnsiConsoleTheme.Code)
                 .CreateLogger();
-
-            try
-            {
-                var seed = args.Contains("/seed");
-                if (seed) args = args.Except(new[] {"/seed"}).ToArray();
-
-                var host = CreateHostBuilder(args).Build();
-
-                if (seed)
-                {
-                    Log.Information("Seeding database...");
-                    var config = host.Services.GetRequiredService<IConfiguration>();
-                    var connectionString = config.GetConnectionString("Identity");
-                    SeedData.EnsureSeedData(connectionString);
-                    Log.Information("Done seeding database");
-                    return 0;
-                }
-
-                Log.Information("Starting host...");
-                host.Run();
-                return 0;
-            }
-            catch (Exception ex)
-            {
-                Log.Fatal(ex, "Host terminated unexpectedly");
-                return 1;
-            }
-            finally
-            {
-                Log.CloseAndFlush();
-            }
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args)
+        private static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
                 .UseSerilog()
