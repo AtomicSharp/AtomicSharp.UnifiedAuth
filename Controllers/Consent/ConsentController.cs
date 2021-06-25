@@ -62,16 +62,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Consent
         {
             var result = await ProcessConsent(model);
 
-            if (result.IsRedirect)
-            {
-                var context = await _interaction.GetAuthorizationContextAsync(model.ReturnUrl);
-                if (context?.IsNativeClient() == true)
-                    // The client is native, so this change in how to
-                    // return the response is for better UX for the end user.
-                    return this.LoadingPage("Redirect", result.RedirectUri);
-
-                return Redirect(result.RedirectUri);
-            }
+            if (result.IsRedirect) return Redirect(result.RedirectUri);
 
             if (result.HasValidationError) ModelState.AddModelError(string.Empty, result.ValidationError);
 

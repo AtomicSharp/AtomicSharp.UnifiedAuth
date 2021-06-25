@@ -84,12 +84,6 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
                     // this will send back an access denied OIDC error response to the client.
                     await _interaction.DenyAuthorizationAsync(context, AuthorizationError.AccessDenied);
 
-                    // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
-                    if (context.IsNativeClient())
-                        // The client is native, so this change in how to
-                        // return the response is for better UX for the end user.
-                        return this.LoadingPage("Redirect", model.ReturnUrl);
-
                     return Redirect(model.ReturnUrl);
                 }
 
@@ -107,16 +101,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
                     await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName,
                         clientId: context?.Client.ClientId));
 
-                    if (context != null)
-                    {
-                        if (context.IsNativeClient())
-                            // The client is native, so this change in how to
-                            // return the response is for better UX for the end user.
-                            return this.LoadingPage("Redirect", model.ReturnUrl);
-
-                        // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
-                        return Redirect(model.ReturnUrl);
-                    }
+                    if (context != null) return Redirect(model.ReturnUrl);
 
                     // request for a local page
                     if (Url.IsLocalUrl(model.ReturnUrl))
