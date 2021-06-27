@@ -1,19 +1,13 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-
-namespace AtomicSharp.UnifiedAuth.Controllers.Account
+﻿namespace AtomicSharp.UnifiedAuth.Controllers.Account
 {
     public class LoggedOutViewModel
     {
-        public string PostLogoutRedirectUri { get; set; }
-        public string ClientName { get; set; }
-        public string SignOutIframeUrl { get; set; }
-
-        public bool AutomaticRedirectAfterSignOut { get; set; }
-
-        public string LogoutId { get; set; }
-        public bool TriggerExternalSignout => ExternalAuthenticationScheme != null;
+        public string PostLogoutRedirectUri { get; init; }
+        public string ClientName { get; init; }
+        public string SignOutIframeUrl { get; init; }
+        public bool AutomaticRedirectAfterSignOut { get; init; }
         public string ExternalAuthenticationScheme { get; set; }
+        public string LogoutId { get; set; }
+        public bool TriggerExternalSignOut => ExternalAuthenticationScheme != null;
     }
 }

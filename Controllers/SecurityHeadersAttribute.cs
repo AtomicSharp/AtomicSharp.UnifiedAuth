@@ -1,8 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace AtomicSharp.UnifiedAuth.Controllers
@@ -23,25 +19,19 @@ namespace AtomicSharp.UnifiedAuth.Controllers
                     context.HttpContext.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
 
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
-                var csp =
+                const string contentSecurityPolicy =
                     "default-src 'self'; object-src 'none'; frame-ancestors 'none'; sandbox allow-forms allow-same-origin allow-scripts; base-uri 'self';";
-                // also consider adding upgrade-insecure-requests once you have HTTPS in place for production
-                //csp += "upgrade-insecure-requests;";
-                // also an example if you need client images to be displayed from twitter
-                // csp += "img-src 'self' https://pbs.twimg.com;";
-
                 // once for standards compliant browsers
                 if (!context.HttpContext.Response.Headers.ContainsKey("Content-Security-Policy"))
-                    context.HttpContext.Response.Headers.Add("Content-Security-Policy", csp);
-
+                    context.HttpContext.Response.Headers.Add("Content-Security-Policy", contentSecurityPolicy);
                 // and once again for IE
                 if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Security-Policy"))
-                    context.HttpContext.Response.Headers.Add("X-Content-Security-Policy", csp);
+                    context.HttpContext.Response.Headers.Add("X-Content-Security-Policy", contentSecurityPolicy);
 
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
-                var referrer_policy = "no-referrer";
+                const string referrerPolicy = "no-referrer";
                 if (!context.HttpContext.Response.Headers.ContainsKey("Referrer-Policy"))
-                    context.HttpContext.Response.Headers.Add("Referrer-Policy", referrer_policy);
+                    context.HttpContext.Response.Headers.Add("Referrer-Policy", referrerPolicy);
             }
         }
     }
