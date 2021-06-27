@@ -1,17 +1,13 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace AtomicSharp.UnifiedAuth.Controllers.Consent
 {
     public class ConsentViewModel : ConsentInputModel
     {
-        public string ClientName { get; set; }
-        public string ClientUrl { get; set; }
-        public string ClientLogoUrl { get; set; }
-        public bool AllowRememberConsent { get; set; }
+        public string ClientName { get; init; }
+        public string ClientUrl { get; init; }
+        public string ClientLogoUrl { get; init; }
+        public bool AllowRememberConsent { get; init; }
 
         public IEnumerable<ScopeViewModel> IdentityScopes { get; set; }
         public IEnumerable<ScopeViewModel> ApiScopes { get; set; }

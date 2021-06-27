@@ -1,7 +1,3 @@
-// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,9 +13,6 @@ using Microsoft.Extensions.Logging;
 
 namespace AtomicSharp.UnifiedAuth.Controllers.Consent
 {
-    /// <summary>
-    ///     This controller processes the consent UI
-    /// </summary>
     [SecurityHeaders]
     [Authorize]
     public class ConsentController : Controller
@@ -39,23 +32,13 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Consent
             _logger = logger;
         }
 
-        /// <summary>
-        ///     Shows the consent screen
-        /// </summary>
-        /// <param name="returnUrl"></param>
-        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> Index(string returnUrl)
         {
             var vm = await BuildViewModelAsync(returnUrl);
-            if (vm != null) return View("Index", vm);
-
-            return View("Error");
+            return vm != null ? View("Index", vm) : View("Error");
         }
 
-        /// <summary>
-        ///     Handles the consent screen postback
-        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(ConsentInputModel model)
@@ -71,33 +54,25 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Consent
             return View("Error");
         }
 
-        /*****************************************/
-        /* helper APIs for the ConsentController */
-        /*****************************************/
         private async Task<ProcessConsentResult> ProcessConsent(ConsentInputModel model)
         {
             var result = new ProcessConsentResult();
 
-            // validate return url is still valid
+            // ensure that return url is still valid
             var request = await _interaction.GetAuthorizationContextAsync(model.ReturnUrl);
             if (request == null) return result;
 
             ConsentResponse grantedConsent = null;
 
-            // user clicked 'no' - send back the standard 'access_denied' response
-            if (model?.Button == "no")
+            switch (model.Action)
             {
-                grantedConsent = new ConsentResponse {Error = AuthorizationError.AccessDenied};
+                case "deny":
+                    grantedConsent = new ConsentResponse {Error = AuthorizationError.AccessDenied};
 
-                // emit event
-                await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.Client.ClientId,
-                    request.ValidatedResources.RawScopeValues));
-            }
-            // user clicked 'yes' - validate the data
-            else if (model?.Button == "yes")
-            {
-                // if the user consented to some scope, build the response model
-                if (model.ScopesConsented != null && model.ScopesConsented.Any())
+                    await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.Client.ClientId,
+                        request.ValidatedResources.RawScopeValues));
+                    break;
+                case "allow" when model.ScopesConsented != null && model.ScopesConsented.Any():
                 {
                     var scopes = model.ScopesConsented;
                     if (ConsentOptions.EnableOfflineAccess == false)
@@ -108,36 +83,30 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Consent
                     {
                         RememberConsent = model.RememberConsent,
                         ScopesValuesConsented = scopes.ToArray(),
-                        Description = model.Description
+                        Description = model.ClientDescription
                     };
 
-                    // emit event
                     await _events.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.Client.ClientId,
                         request.ValidatedResources.RawScopeValues, grantedConsent.ScopesValuesConsented,
                         grantedConsent.RememberConsent));
+                    break;
                 }
-                else
-                {
+                case "allow":
                     result.ValidationError = ConsentOptions.MustChooseOneErrorMessage;
-                }
-            }
-            else
-            {
-                result.ValidationError = ConsentOptions.InvalidSelectionErrorMessage;
+                    break;
+                default:
+                    result.ValidationError = ConsentOptions.InvalidSelectionErrorMessage;
+                    break;
             }
 
             if (grantedConsent != null)
             {
-                // communicate outcome of consent back to identityserver
                 await _interaction.GrantConsentAsync(request, grantedConsent);
-
-                // indicate that's it ok to redirect back to authorization endpoint
                 result.RedirectUri = model.ReturnUrl;
                 result.Client = request.Client;
             }
             else
             {
-                // we need to redisplay the consent UI
                 result.ViewModel = await BuildViewModelAsync(model.ReturnUrl, model);
             }
 
@@ -149,12 +118,12 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Consent
             var request = await _interaction.GetAuthorizationContextAsync(returnUrl);
             if (request != null)
                 return CreateConsentViewModel(model, returnUrl, request);
-            _logger.LogError("No consent request matching request: {0}", returnUrl);
+            _logger.LogError("No consent request matching request: {returnUrl}", returnUrl);
 
             return null;
         }
 
-        private ConsentViewModel CreateConsentViewModel(
+        private static ConsentViewModel CreateConsentViewModel(
             ConsentInputModel model,
             string returnUrl,
             AuthorizationRequest request
@@ -164,7 +133,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Consent
             {
                 RememberConsent = model?.RememberConsent ?? true,
                 ScopesConsented = model?.ScopesConsented ?? Enumerable.Empty<string>(),
-                Description = model?.Description,
+                ClientDescription = model?.ClientDescription,
 
                 ReturnUrl = returnUrl,
 
@@ -199,7 +168,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Consent
             return vm;
         }
 
-        private ScopeViewModel CreateScopeViewModel(IdentityResource identity, bool check)
+        private static ScopeViewModel CreateScopeViewModel(IdentityResource identity, bool check)
         {
             return new()
             {
@@ -212,7 +181,11 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Consent
             };
         }
 
-        public ScopeViewModel CreateScopeViewModel(ParsedScopeValue parsedScopeValue, ApiScope apiScope, bool check)
+        private static ScopeViewModel CreateScopeViewModel(
+            ParsedScopeValue parsedScopeValue,
+            ApiScope apiScope,
+            bool check
+        )
         {
             var displayName = apiScope.DisplayName ?? apiScope.Name;
             if (!string.IsNullOrWhiteSpace(parsedScopeValue.ParsedParameter))
@@ -229,7 +202,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Consent
             };
         }
 
-        private ScopeViewModel GetOfflineAccessScope(bool check)
+        private static ScopeViewModel GetOfflineAccessScope(bool check)
         {
             return new()
             {

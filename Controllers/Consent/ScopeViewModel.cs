@@ -1,16 +1,12 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-
-namespace AtomicSharp.UnifiedAuth.Controllers.Consent
+﻿namespace AtomicSharp.UnifiedAuth.Controllers.Consent
 {
     public class ScopeViewModel
     {
-        public string Value { get; set; }
-        public string DisplayName { get; set; }
-        public string Description { get; set; }
-        public bool Emphasize { get; set; }
-        public bool Required { get; set; }
-        public bool Checked { get; set; }
+        public string Value { get; init; }
+        public string DisplayName { get; init; }
+        public string Description { get; init; }
+        public bool Emphasize { get; init; }
+        public bool Required { get; init; }
+        public bool Checked { get; init; }
     }
 }

@@ -89,7 +89,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
             ConsentResponse grantedConsent = null;
 
             // user clicked 'no' - send back the standard 'access_denied' response
-            if (model.Button == "no")
+            if (model.Action == "no")
             {
                 grantedConsent = new ConsentResponse {Error = AuthorizationError.AccessDenied};
 
@@ -98,7 +98,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
                     request.ValidatedResources.RawScopeValues));
             }
             // user clicked 'yes' - validate the data
-            else if (model.Button == "yes")
+            else if (model.Action == "yes")
             {
                 // if the user consented to some scope, build the response model
                 if (model.ScopesConsented != null && model.ScopesConsented.Any())
@@ -112,7 +112,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
                     {
                         RememberConsent = model.RememberConsent,
                         ScopesValuesConsented = scopes.ToArray(),
-                        Description = model.Description
+                        Description = model.ClientDescription
                     };
 
                     // emit event
@@ -168,7 +168,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
             var vm = new DeviceAuthorizationViewModel
             {
                 UserCode = userCode,
-                Description = model?.Description,
+                ClientDescription = model?.ClientDescription,
 
                 RememberConsent = model?.RememberConsent ?? true,
                 ScopesConsented = model?.ScopesConsented ?? Enumerable.Empty<string>(),
