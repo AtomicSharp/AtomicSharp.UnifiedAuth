@@ -150,7 +150,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
 
             // if the client has specified the identity provider and the identity provider is valid
-            if (context.IdP != null && await _schemeProvider.GetSchemeAsync(context.IdP) != null)
+            if (context?.IdP != null && await _schemeProvider.GetSchemeAsync(context.IdP) != null)
             {
                 var local = context.IdP == IdentityServerConstants.LocalIdentityProvider;
 
@@ -177,7 +177,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
                 }).ToList();
 
             var allowLocal = true;
-            if (context.Client.ClientId != null)
+            if (context?.Client.ClientId != null)
             {
                 var client = await _clientStore.FindEnabledClientByIdAsync(context.Client.ClientId);
                 if (client != null)
@@ -195,7 +195,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
                 AllowRememberLogin = AccountOptions.AllowRememberLogin,
                 EnableLocalLogin = allowLocal && AccountOptions.AllowLocalLogin,
                 ReturnUrl = returnUrl,
-                UserName = context.LoginHint,
+                UserName = context?.LoginHint,
                 ExternalProviders = providers.ToArray()
             };
         }
