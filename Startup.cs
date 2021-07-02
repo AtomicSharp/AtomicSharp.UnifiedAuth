@@ -20,16 +20,17 @@ namespace AtomicSharp.IdentityServer.Admin
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+                .AddJwtBearer(options =>
                 {
                     options.Authority = Configuration["OAuth:Authority"];
                     options.Audience = Configuration["OAuth:Audience"];
+                    options.TokenValidationParameters.ValidIssuer = Configuration["AuthServer:Authority"];
                 });
-            
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo {Title = Configuration["App:AppName"], Version = "v1"});
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = Configuration["App:AppName"], Version = "v1" });
             });
         }
 

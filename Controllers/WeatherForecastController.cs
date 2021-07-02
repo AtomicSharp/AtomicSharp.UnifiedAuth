@@ -9,7 +9,7 @@ namespace AtomicSharp.IdentityServer.Admin.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("/api/identityserver/[controller]")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries =
