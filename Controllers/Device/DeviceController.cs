@@ -1,4 +1,4 @@
-// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -91,7 +91,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
             // user clicked 'no' - send back the standard 'access_denied' response
             if (model.Action == "no")
             {
-                grantedConsent = new ConsentResponse {Error = AuthorizationError.AccessDenied};
+                grantedConsent = new ConsentResponse { Error = AuthorizationError.AccessDenied };
 
                 // emit event
                 await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.Client.ClientId,

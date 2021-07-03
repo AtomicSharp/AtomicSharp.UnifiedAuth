@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -230,7 +230,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
             // if the external provider issued an id_token, we'll keep it for signout
             var idToken = externalResult.Properties.GetTokenValue("id_token");
             if (idToken != null)
-                localSignInProps.StoreTokens(new[] {new AuthenticationToken {Name = "id_token", Value = idToken}});
+                localSignInProps.StoreTokens(new[] { new AuthenticationToken { Name = "id_token", Value = idToken } });
         }
     }
 }

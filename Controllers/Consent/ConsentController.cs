@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IdentityServer4;
@@ -67,30 +67,30 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Consent
             switch (model.Action)
             {
                 case "deny":
-                    grantedConsent = new ConsentResponse {Error = AuthorizationError.AccessDenied};
+                    grantedConsent = new ConsentResponse { Error = AuthorizationError.AccessDenied };
 
                     await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.Client.ClientId,
                         request.ValidatedResources.RawScopeValues));
                     break;
                 case "allow" when model.ScopesConsented != null && model.ScopesConsented.Any():
-                {
-                    var scopes = model.ScopesConsented;
-                    if (ConsentOptions.EnableOfflineAccess == false)
-                        scopes = scopes.Where(x =>
-                            x != IdentityServerConstants.StandardScopes.OfflineAccess);
-
-                    grantedConsent = new ConsentResponse
                     {
-                        RememberConsent = model.RememberConsent,
-                        ScopesValuesConsented = scopes.ToArray(),
-                        Description = model.ClientDescription
-                    };
+                        var scopes = model.ScopesConsented;
+                        if (ConsentOptions.EnableOfflineAccess == false)
+                            scopes = scopes.Where(x =>
+                                x != IdentityServerConstants.StandardScopes.OfflineAccess);
 
-                    await _events.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.Client.ClientId,
-                        request.ValidatedResources.RawScopeValues, grantedConsent.ScopesValuesConsented,
-                        grantedConsent.RememberConsent));
-                    break;
-                }
+                        grantedConsent = new ConsentResponse
+                        {
+                            RememberConsent = model.RememberConsent,
+                            ScopesValuesConsented = scopes.ToArray(),
+                            Description = model.ClientDescription
+                        };
+
+                        await _events.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.Client.ClientId,
+                            request.ValidatedResources.RawScopeValues, grantedConsent.ScopesValuesConsented,
+                            grantedConsent.RememberConsent));
+                        break;
+                    }
                 case "allow":
                     result.ValidationError = ConsentOptions.MustChooseOneErrorMessage;
                     break;

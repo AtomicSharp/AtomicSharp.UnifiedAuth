@@ -50,7 +50,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
             var vm = await BuildLoginViewModelAsync(returnUrl);
 
             if (vm.IsExternalLoginOnly)
-                return RedirectToAction("Challenge", "External", new {scheme = vm.ExternalLoginScheme, returnUrl});
+                return RedirectToAction("Challenge", "External", new { scheme = vm.ExternalLoginScheme, returnUrl });
 
             return View(vm);
         }
@@ -130,10 +130,10 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
 
             if (vm.TriggerExternalSignOut)
             {
-                var url = Url.Action("Logout", new {logoutId = vm.LogoutId});
+                var url = Url.Action("Logout", new { logoutId = vm.LogoutId });
 
                 // this triggers a redirect to the external provider for sign-out
-                return SignOut(new AuthenticationProperties {RedirectUri = url}, vm.ExternalAuthenticationScheme);
+                return SignOut(new AuthenticationProperties { RedirectUri = url }, vm.ExternalAuthenticationScheme);
             }
 
             return View("LoggedOut", vm);
@@ -161,7 +161,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
                     UserName = context.LoginHint
                 };
 
-                if (!local) vm.ExternalProviders = new[] {new ExternalProvider {AuthenticationScheme = context.IdP}};
+                if (!local) vm.ExternalProviders = new[] { new ExternalProvider { AuthenticationScheme = context.IdP } };
 
                 return vm;
             }
@@ -210,7 +210,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
 
         private async Task<LogoutViewModel> BuildLogoutViewModelAsync(string logoutId)
         {
-            var vm = new LogoutViewModel {LogoutId = logoutId, ShowLogoutPrompt = AccountOptions.ShowLogoutPrompt};
+            var vm = new LogoutViewModel { LogoutId = logoutId, ShowLogoutPrompt = AccountOptions.ShowLogoutPrompt };
 
             if (User?.Identity?.IsAuthenticated != true)
             {

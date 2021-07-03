@@ -1,4 +1,4 @@
-using IdentityServer4.Models;
+﻿using IdentityServer4.Models;
 
 namespace AtomicSharp.UnifiedAuth.Controllers.Consent
 {
