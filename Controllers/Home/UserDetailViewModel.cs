@@ -1,18 +1,14 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
 using Newtonsoft.Json;
 
-namespace AtomicSharp.UnifiedAuth.Controllers.Diagnostics
+namespace AtomicSharp.UnifiedAuth.Controllers.Home
 {
-    public class DiagnosticsViewModel
+    public class UserDetailViewModel
     {
-        public DiagnosticsViewModel(AuthenticateResult result)
+        public UserDetailViewModel(AuthenticateResult result)
         {
             AuthenticateResult = result;
 

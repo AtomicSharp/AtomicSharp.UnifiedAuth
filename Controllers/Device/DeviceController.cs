@@ -1,12 +1,9 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AtomicSharp.UnifiedAuth.Controllers.Consent;
+using AtomicSharp.UnifiedAuth.Security;
 using IdentityServer4;
 using IdentityServer4.Configuration;
 using IdentityServer4.Events;
@@ -16,7 +13,6 @@ using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace AtomicSharp.UnifiedAuth.Controllers.Device
@@ -27,20 +23,17 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
     {
         private readonly IEventService _events;
         private readonly IDeviceFlowInteractionService _interaction;
-        private readonly ILogger<DeviceController> _logger;
         private readonly IOptions<IdentityServerOptions> _options;
 
         public DeviceController(
             IDeviceFlowInteractionService interaction,
             IEventService eventService,
-            IOptions<IdentityServerOptions> options,
-            ILogger<DeviceController> logger
+            IOptions<IdentityServerOptions> options
         )
         {
             _interaction = interaction;
             _events = eventService;
             _options = options;
-            _logger = logger;
         }
 
         [HttpGet]
@@ -48,6 +41,9 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
         {
             var userCodeParamName = _options.Value.UserInteraction.DeviceVerificationUserCodeParameter;
             string userCode = Request.Query[userCodeParamName];
+
+            // if the user code is not offered in the request
+            // then provide a page for the user to input mannually
             if (string.IsNullOrWhiteSpace(userCode)) return View("UserCodeCapture");
 
             var vm = await BuildViewModelAsync(userCode);
@@ -88,19 +84,14 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
 
             ConsentResponse grantedConsent = null;
 
-            // user clicked 'no' - send back the standard 'access_denied' response
-            if (model.Action == "no")
+            if (model.Action == "deny")
             {
                 grantedConsent = new ConsentResponse { Error = AuthorizationError.AccessDenied };
 
-                // emit event
-                await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.Client.ClientId,
-                    request.ValidatedResources.RawScopeValues));
+                await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.Client.ClientId, request.ValidatedResources.RawScopeValues));
             }
-            // user clicked 'yes' - validate the data
-            else if (model.Action == "yes")
+            else if (model.Action == "allow")
             {
-                // if the user consented to some scope, build the response model
                 if (model.ScopesConsented != null && model.ScopesConsented.Any())
                 {
                     var scopes = model.ScopesConsented;
@@ -115,7 +106,6 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
                         Description = model.ClientDescription
                     };
 
-                    // emit event
                     await _events.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.Client.ClientId,
                         request.ValidatedResources.RawScopeValues, grantedConsent.ScopesValuesConsented,
                         grantedConsent.RememberConsent));
@@ -132,16 +122,13 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
 
             if (grantedConsent != null)
             {
-                // communicate outcome of consent back to identityserver
                 await _interaction.HandleRequestAsync(model.UserCode, grantedConsent);
 
-                // indicate that's it ok to redirect back to authorization endpoint
                 result.RedirectUri = model.ReturnUrl;
                 result.Client = request.Client;
             }
             else
             {
-                // we need to redisplay the consent UI
                 result.ViewModel = await BuildViewModelAsync(model.UserCode, model);
             }
 
@@ -204,7 +191,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
             return vm;
         }
 
-        private ScopeViewModel CreateScopeViewModel(IdentityResource identity, bool check)
+        private static ScopeViewModel CreateScopeViewModel(IdentityResource identity, bool check)
         {
             return new()
             {
@@ -222,7 +209,6 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
             return new()
             {
                 Value = parsedScopeValue.RawValue,
-                // todo: use the parsed scope value in the display?
                 DisplayName = apiScope.DisplayName ?? apiScope.Name,
                 Description = apiScope.Description,
                 Emphasize = apiScope.Emphasize,
@@ -231,7 +217,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
             };
         }
 
-        private ScopeViewModel GetOfflineAccessScope(bool check)
+        private static ScopeViewModel GetOfflineAccessScope(bool check)
         {
             return new()
             {

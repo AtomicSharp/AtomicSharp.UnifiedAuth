@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace AtomicSharp.UnifiedAuth.Controllers
+namespace AtomicSharp.UnifiedAuth.Security
 {
     public class SecurityHeadersAttribute : ActionFilterAttribute
     {

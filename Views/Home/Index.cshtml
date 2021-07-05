@@ -1,35 +1,60 @@
-@using System.Diagnostics
-@using IdentityServer4.Hosting
-@{
-  var version = FileVersionInfo.GetVersionInfo(typeof(IdentityServerMiddleware).Assembly.Location).ProductVersion.Split('+').First();
-}
+@model AtomicSharp.UnifiedAuth.Controllers.Home.UserDetailViewModel
 
-<div class="welcome-page">
-  <h1>
-    <img src="~/icon.jpg">
-    Welcome to IdentityServer4
-    <small class="text-muted">(version @version)</small>
-  </h1>
+<div class="diagnostics-page">
+  <div class="lead">
+    <h1>Authentication Cookie</h1>
+  </div>
 
-  <ul>
-    <li>
-      IdentityServer publishes a
-      <a href="~/.well-known/openid-configuration">discovery document</a>
-      where you can find metadata and links to all the endpoints, key material, etc.
-    </li>
-    <li>
-      Click
-      <a href="~/diagnostics">here</a> to see the claims for your current session.
-    </li>
-    <li>
-      Click
-      <a href="~/grants">here</a> to manage your stored grants.
-    </li>
-    <li>
-      Here are links to the
-      <a href="https://github.com/identityserver/IdentityServer4">source code repository</a>,
-      and
-      <a href="https://github.com/IdentityServer/IdentityServer4/tree/main/samples">ready to use samples</a>.
-    </li>
-  </ul>
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <div class="card-header">
+          <h2>Claims</h2>
+        </div>
+        <div class="card-body">
+          <dl>
+            @foreach (var claim in Model.AuthenticateResult.Principal.Claims)
+            {
+              <dt>@claim.Type</dt>
+              <dd>@claim.Value</dd>
+            }
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card">
+        <div class="card-header">
+          <h2>Properties</h2>
+        </div>
+        <div class="card-body">
+          <dl>
+            @foreach (var prop in Model.AuthenticateResult.Properties.Items)
+            {
+              <dt>@prop.Key</dt>
+              <dd>@prop.Value</dd>
+            }
+            @if (Model.Clients.Any())
+            {
+              <dt>Clients</dt>
+              <dd>
+                @{
+                  var clients = Model.Clients.ToArray();
+                  for (var i = 0; i < clients.Length; i++)
+                  {
+                    <text>@clients[i]</text>
+                    if (i < clients.Length - 1)
+                    {
+                      <text>, </text>
+                    }
+                  }
+                }
+              </dd>
+            }
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

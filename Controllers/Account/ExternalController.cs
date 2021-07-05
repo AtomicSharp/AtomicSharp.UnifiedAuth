@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AtomicSharp.UnifiedAuth.Models;
+using AtomicSharp.UnifiedAuth.Security;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Events;

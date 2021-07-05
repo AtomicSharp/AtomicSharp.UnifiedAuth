@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AtomicSharp.UnifiedAuth.Security;
 using IdentityServer4;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
