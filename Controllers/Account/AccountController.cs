@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
 
 namespace AtomicSharp.UnifiedAuth.Controllers.Account
 {
@@ -23,6 +25,8 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
     {
         private readonly IClientStore _clientStore;
         private readonly IEventService _events;
+        private readonly IStringLocalizer<AccountController> _localizer;
+        private readonly AccountOptions _accountOptions;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IAuthenticationSchemeProvider _schemeProvider;
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -34,7 +38,9 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
             IIdentityServerInteractionService interaction,
             IClientStore clientStore,
             IAuthenticationSchemeProvider schemeProvider,
-            IEventService events
+            IEventService events,
+            IStringLocalizer<AccountController> localizer,
+            IOptions<AccountOptions> accountOptions
         )
         {
             _userManager = userManager;
@@ -43,6 +49,8 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
             _clientStore = clientStore;
             _schemeProvider = schemeProvider;
             _events = events;
+            _localizer = localizer;
+            _accountOptions = accountOptions.Value;
         }
 
         [HttpGet]
@@ -97,7 +105,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
 
                 await _events.RaiseAsync(new UserLoginFailureEvent(model.UserName, "invalid credentials",
                     clientId: context?.Client.ClientId));
-                ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
+                ModelState.AddModelError(string.Empty, _localizer["InvalidCredentialsError"]);
             }
 
             // something went wrong, show form with error
@@ -193,8 +201,8 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
 
             return new LoginViewModel
             {
-                AllowRememberLogin = AccountOptions.AllowRememberLogin,
-                EnableLocalLogin = allowLocal && AccountOptions.AllowLocalLogin,
+                AllowRememberLogin = _accountOptions.AllowRememberLogin,
+                EnableLocalLogin = allowLocal && _accountOptions.AllowLocalLogin,
                 ReturnUrl = returnUrl,
                 UserName = context?.LoginHint,
                 ExternalProviders = providers.ToArray()
@@ -211,7 +219,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
 
         private async Task<LogoutViewModel> BuildLogoutViewModelAsync(string logoutId)
         {
-            var vm = new LogoutViewModel { LogoutId = logoutId, ShowLogoutPrompt = AccountOptions.ShowLogoutPrompt };
+            var vm = new LogoutViewModel { LogoutId = logoutId };
 
             if (User?.Identity?.IsAuthenticated != true)
             {
@@ -235,7 +243,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
 
             var vm = new LoggedOutViewModel
             {
-                AutomaticRedirectAfterSignOut = AccountOptions.AutomaticRedirectAfterSignOut,
+                AutomaticRedirectAfterSignOut = _accountOptions.AutomaticRedirectAfterSignOut,
                 PostLogoutRedirectUri = logout?.PostLogoutRedirectUri,
                 ClientName = string.IsNullOrEmpty(logout?.ClientName) ? logout?.ClientId : logout.ClientName,
                 SignOutIframeUrl = logout?.SignOutIFrameUrl,

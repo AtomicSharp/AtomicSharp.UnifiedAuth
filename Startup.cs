@@ -1,4 +1,6 @@
-﻿using AtomicSharp.UnifiedAuth.Data;
+﻿using AtomicSharp.UnifiedAuth.Controllers.Account;
+using AtomicSharp.UnifiedAuth.Controllers.Consent;
+using AtomicSharp.UnifiedAuth.Data;
 using AtomicSharp.UnifiedAuth.Models;
 using IdentityServer4;
 using Microsoft.AspNetCore.Builder;
@@ -58,6 +60,11 @@ namespace AtomicSharp.UnifiedAuth
                     options.ClientId = "copy client ID from Google here";
                     options.ClientSecret = "copy client secret from Google here";
                 });
+
+            services.Configure<AccountOptions>(Configuration.GetSection("Account"));
+            services.Configure<ConsentOptions>(Configuration.GetSection("Consent"));
+
+            services.AddLocalization();
         }
 
         public void Configure(IApplicationBuilder app)

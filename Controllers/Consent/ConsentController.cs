@@ -10,7 +10,9 @@ using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace AtomicSharp.UnifiedAuth.Controllers.Consent
 {
@@ -21,16 +23,22 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Consent
         private readonly IEventService _events;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly ILogger<ConsentController> _logger;
+        private readonly IStringLocalizer<ConsentController> _localizer;
+        private readonly ConsentOptions _consentOptions;
 
         public ConsentController(
             IIdentityServerInteractionService interaction,
             IEventService events,
-            ILogger<ConsentController> logger
+            ILogger<ConsentController> logger,
+            IOptions<ConsentOptions> consentOptions,
+            IStringLocalizer<ConsentController> localizer
         )
         {
             _interaction = interaction;
             _events = events;
             _logger = logger;
+            _localizer = localizer;
+            _consentOptions = consentOptions.Value;
         }
 
         [HttpGet]
@@ -76,7 +84,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Consent
                 case "allow" when model.ScopesConsented != null && model.ScopesConsented.Any():
                     {
                         var scopes = model.ScopesConsented;
-                        if (ConsentOptions.EnableOfflineAccess == false)
+                        if (_consentOptions.EnableOfflineAccess == false)
                             scopes = scopes.Where(x =>
                                 x != IdentityServerConstants.StandardScopes.OfflineAccess);
 
@@ -93,10 +101,10 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Consent
                         break;
                     }
                 case "allow":
-                    result.ValidationError = ConsentOptions.MustChooseOneErrorMessage;
+                    result.ValidationError = _localizer["MustChooseOneErrorMessage"];
                     break;
                 default:
-                    result.ValidationError = ConsentOptions.InvalidSelectionErrorMessage;
+                    result.ValidationError = _localizer["InvalidSelectionErrorMessage"];
                     break;
             }
 
@@ -124,7 +132,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Consent
             return null;
         }
 
-        private static ConsentViewModel CreateConsentViewModel(
+        private ConsentViewModel CreateConsentViewModel(
             ConsentInputModel model,
             string returnUrl,
             AuthorizationRequest request
@@ -159,7 +167,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Consent
                 }
             }
 
-            if (ConsentOptions.EnableOfflineAccess && request.ValidatedResources.Resources.OfflineAccess)
+            if (_consentOptions.EnableOfflineAccess && request.ValidatedResources.Resources.OfflineAccess)
                 apiScopes.Add(GetOfflineAccessScope(
                     vm.ScopesConsented.Contains(IdentityServerConstants.StandardScopes.OfflineAccess) ||
                     model == null));
@@ -203,13 +211,13 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Consent
             };
         }
 
-        private static ScopeViewModel GetOfflineAccessScope(bool check)
+        private ScopeViewModel GetOfflineAccessScope(bool check)
         {
             return new()
             {
                 Value = IdentityServerConstants.StandardScopes.OfflineAccess,
-                DisplayName = ConsentOptions.OfflineAccessDisplayName,
-                Description = ConsentOptions.OfflineAccessDescription,
+                DisplayName = _localizer["OfflineAccessDisplayName"],
+                Description = _localizer["OfflineAccessDescription"],
                 Emphasize = true,
                 Checked = check
             };

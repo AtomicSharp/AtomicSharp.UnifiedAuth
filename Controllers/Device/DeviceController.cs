@@ -13,6 +13,7 @@ using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
 namespace AtomicSharp.UnifiedAuth.Controllers.Device
@@ -23,23 +24,29 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
     {
         private readonly IEventService _events;
         private readonly IDeviceFlowInteractionService _interaction;
-        private readonly IOptions<IdentityServerOptions> _options;
+        private readonly IOptions<IdentityServerOptions> _identityServerOptions;
+        private readonly IStringLocalizer<DeviceController> _localizer;
+        private readonly ConsentOptions _consentOptions;
 
         public DeviceController(
             IDeviceFlowInteractionService interaction,
             IEventService eventService,
-            IOptions<IdentityServerOptions> options
+            IOptions<IdentityServerOptions> identityServerOptions,
+            IStringLocalizer<DeviceController> localizer,
+            IOptions<ConsentOptions> consentOptions
         )
         {
             _interaction = interaction;
             _events = eventService;
-            _options = options;
+            _identityServerOptions = identityServerOptions;
+            _localizer = localizer;
+            _consentOptions = consentOptions.Value;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var userCodeParamName = _options.Value.UserInteraction.DeviceVerificationUserCodeParameter;
+            var userCodeParamName = _identityServerOptions.Value.UserInteraction.DeviceVerificationUserCodeParameter;
             string userCode = Request.Query[userCodeParamName];
 
             // if the user code is not offered in the request
@@ -95,7 +102,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
                 if (model.ScopesConsented != null && model.ScopesConsented.Any())
                 {
                     var scopes = model.ScopesConsented;
-                    if (ConsentOptions.EnableOfflineAccess == false)
+                    if (_consentOptions.EnableOfflineAccess == false)
                         scopes = scopes.Where(x =>
                             x != IdentityServerConstants.StandardScopes.OfflineAccess);
 
@@ -112,12 +119,12 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
                 }
                 else
                 {
-                    result.ValidationError = ConsentOptions.MustChooseOneErrorMessage;
+                    result.ValidationError = _localizer["MustChooseOneErrorMessage"];
                 }
             }
             else
             {
-                result.ValidationError = ConsentOptions.InvalidSelectionErrorMessage;
+                result.ValidationError = _localizer["InvalidSelectionErrorMessage"];
             }
 
             if (grantedConsent != null)
@@ -181,7 +188,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
                 }
             }
 
-            if (ConsentOptions.EnableOfflineAccess && request.ValidatedResources.Resources.OfflineAccess)
+            if (_consentOptions.EnableOfflineAccess && request.ValidatedResources.Resources.OfflineAccess)
                 apiScopes.Add(GetOfflineAccessScope(
                     vm.ScopesConsented.Contains(IdentityServerConstants.StandardScopes.OfflineAccess) ||
                     model == null));
@@ -217,13 +224,13 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Device
             };
         }
 
-        private static ScopeViewModel GetOfflineAccessScope(bool check)
+        private ScopeViewModel GetOfflineAccessScope(bool check)
         {
             return new()
             {
                 Value = IdentityServerConstants.StandardScopes.OfflineAccess,
-                DisplayName = ConsentOptions.OfflineAccessDisplayName,
-                Description = ConsentOptions.OfflineAccessDescription,
+                DisplayName = _localizer["OfflineAccessDisplayName"],
+                Description = _localizer["OfflineAccessDescription"],
                 Emphasize = true,
                 Checked = check
             };
