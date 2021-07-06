@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace AtomicSharp.IdentityServer.Admin
+namespace AtomicSharp.IdentityServer.HttpApi
 {
     public class Program
     {

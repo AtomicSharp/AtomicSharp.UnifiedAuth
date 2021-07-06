@@ -6,16 +6,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 
-namespace AtomicSharp.IdentityServer.Admin
+namespace AtomicSharp.IdentityServer.HttpApi
 {
     public class Startup
     {
-        private IConfiguration Configuration { get; }
-
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
+
+        private IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -30,7 +30,7 @@ namespace AtomicSharp.IdentityServer.Admin
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = Configuration["App:AppName"], Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = Configuration["App:AppName"], Version = "v1"});
             });
         }
 
@@ -41,7 +41,8 @@ namespace AtomicSharp.IdentityServer.Admin
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c =>
-                    c.SwaggerEndpoint($"{Configuration["App:AppUrl"]}/swagger/v1/swagger.json", $"{Configuration["App:AppName"]} v1"));
+                    c.SwaggerEndpoint($"{Configuration["App:AppUrl"]}/swagger/v1/swagger.json",
+                        $"{Configuration["App:AppName"]} v1"));
             }
 
             app.UseHttpsRedirection();
