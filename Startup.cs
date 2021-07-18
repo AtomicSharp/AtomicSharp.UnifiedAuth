@@ -1,10 +1,10 @@
 ﻿using AtomicSharp.UnifiedAuth.Controllers.Account;
 using AtomicSharp.UnifiedAuth.Controllers.Consent;
+using AtomicSharp.UnifiedAuth.Data;
 using IdentityServer4;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,30 +27,35 @@ namespace AtomicSharp.UnifiedAuth
         {
             services.AddControllersWithViews();
 
-            services.AddDbContext<IdentityDbContext>(options =>
-                options.UseNpgsql(Configuration.GetConnectionString("Identity")));
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseNpgsql(Configuration.GetConnectionString("Identity"))
+            );
 
             services.AddIdentity<IdentityUser, IdentityRole>()
-                .AddEntityFrameworkStores<IdentityDbContext>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            var builder = services.AddIdentityServer(options =>
+            services.AddIdentityServer(options =>
                 {
                     options.Events.RaiseErrorEvents = true;
                     options.Events.RaiseInformationEvents = true;
                     options.Events.RaiseFailureEvents = true;
                     options.Events.RaiseSuccessEvents = true;
-
                     options.EmitStaticAudienceClaim = true;
                 })
-                .AddInMemoryIdentityResources(Config.IdentityResources)
-                .AddInMemoryApiScopes(Config.ApiScopes)
-                .AddInMemoryApiResources(Config.ApiResources)
-                .AddInMemoryClients(Config.Clients)
-                .AddAspNetIdentity<IdentityUser>();
-
-            // not recommended for production - you need to store your key material somewhere secure
-            builder.AddDeveloperSigningCredential();
+                .AddAspNetIdentity<IdentityUser>()
+                .AddConfigurationStore(options =>
+                {
+                    options.ConfigureDbContext = b => b.UseNpgsql(
+                        Configuration.GetConnectionString("IdentityServer"));
+                })
+                .AddOperationalStore(options =>
+                {
+                    options.ConfigureDbContext = b => b.UseNpgsql(
+                        Configuration.GetConnectionString("IdentityServer"));
+                })
+                // not recommended for production - you need to store your key material somewhere secure
+                .AddDeveloperSigningCredential();
 
             services.AddAuthentication()
                 .AddGoogle(options =>
