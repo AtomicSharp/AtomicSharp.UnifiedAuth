@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using AtomicSharp.UnifiedAuth.Models;
 using AtomicSharp.UnifiedAuth.Security;
 using IdentityModel;
 using IdentityServer4;
@@ -27,12 +26,12 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
         private readonly IEventService _events;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly ILogger<ExternalController> _logger;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
 
         public ExternalController(
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
+            UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager,
             IIdentityServerInteractionService interaction,
             IClientStore clientStore,
             IEventService events,
@@ -136,7 +135,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
             return Redirect(returnUrl);
         }
 
-        private async Task<(ApplicationUser user, string provider, string providerUserId, IEnumerable<Claim> claims)>
+        private async Task<(IdentityUser user, string provider, string providerUserId, IEnumerable<Claim> claims)>
             FindUserFromExternalProviderAsync(AuthenticateResult result)
         {
             var externalUser = result.Principal;
@@ -161,7 +160,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
             return (user, provider, providerUserId, claims);
         }
 
-        private async Task<ApplicationUser> AutoProvisionUserAsync(
+        private async Task<IdentityUser> AutoProvisionUserAsync(
             string provider,
             string providerUserId,
             IEnumerable<Claim> claims
@@ -195,7 +194,7 @@ namespace AtomicSharp.UnifiedAuth.Controllers.Account
                         claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
             if (email != null) filtered.Add(new Claim(JwtClaimTypes.Email, email));
 
-            var user = new ApplicationUser
+            var user = new IdentityUser
             {
                 UserName = Guid.NewGuid().ToString()
             };
