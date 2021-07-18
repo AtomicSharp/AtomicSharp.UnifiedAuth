@@ -58,11 +58,11 @@ namespace AtomicSharp.UnifiedAuth.Web
                 .AddDeveloperSigningCredential();
 
             services.AddAuthentication()
-                .AddGoogle(options =>
+                .AddGitHub(options =>
                 {
                     options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
-                    options.ClientId = "copy client ID from Google here";
-                    options.ClientSecret = "copy client secret from Google here";
+                    options.ClientId = Configuration["ExternalIdp:GitHub:ClientId"];
+                    options.ClientSecret = Configuration["ExternalIdp:GitHub:ClientSecret"];
                 });
 
             services.Configure<AccountOptions>(Configuration.GetSection("Account"));
