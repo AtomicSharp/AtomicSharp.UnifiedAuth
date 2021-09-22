@@ -1,4 +1,5 @@
-﻿using Atomic.UnifiedAuth.Web.Controllers.Account;
+﻿using System.Threading.Tasks;
+using Atomic.UnifiedAuth.Web.Controllers.Account;
 using Atomic.UnifiedAuth.Web.Controllers.Consent;
 using Atomic.UnifiedAuth.Web.Data;
 using IdentityServer4;
@@ -73,6 +74,8 @@ namespace Atomic.UnifiedAuth.Web
 
         public void Configure(IApplicationBuilder app)
         {
+            InitializeDatabase(app).GetAwaiter().GetResult();
+
             if (Environment.IsDevelopment()) app.UseDeveloperExceptionPage();
 
             app.UseStaticFiles();
@@ -84,6 +87,23 @@ namespace Atomic.UnifiedAuth.Web
             {
                 endpoints.MapDefaultControllerRoute();
             });
+        }
+
+        private async Task InitializeDatabase(IApplicationBuilder app)
+        {
+            using var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+            serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.EnsureCreated();
+
+            var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            if (await userManager.FindByNameAsync("alice") == null)
+            {
+                await userManager.CreateAsync(new IdentityUser("alice"), "Pass123$");
+            }
+
+            if (await userManager.FindByNameAsync("bob") == null)
+            {
+                await userManager.CreateAsync(new IdentityUser("bob"), "Pass123$");
+            }
         }
     }
 }
