@@ -1,0 +1,36 @@
+﻿@model Atomic.UnifiedAuth.Web.Controllers.Consent.ScopeViewModel
+
+<li class="list-group-item">
+  <label>
+    <input checked="@Model.Checked"
+           class="consent-scopecheck"
+           disabled="@Model.Required"
+           id="scopes_@Model.Value"
+           name="ScopesConsented"
+           type="checkbox"
+           value="@Model.Value" />
+    @if (Model.Required)
+    {
+      <input name="ScopesConsented"
+             type="hidden"
+             value="@Model.Value" />
+    }
+    <strong>@Model.DisplayName</strong>
+    @if (Model.Emphasize)
+    {
+      <span class="glyphicon glyphicon-exclamation-sign"></span>
+    }
+  </label>
+  @if (Model.Required)
+  {
+    <span>
+      <em>(required)</em>
+    </span>
+  }
+  @if (Model.Description != null)
+  {
+    <div class="consent-description">
+      <label for="scopes_@Model.Value">@Model.Description</label>
+    </div>
+  }
+</li>
