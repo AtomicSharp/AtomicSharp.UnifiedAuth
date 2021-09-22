@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Reflection;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
@@ -30,23 +31,35 @@ namespace Atomic.Admin.Host
                 })
                 .AddJwtBearer(options =>
                 {
-                    options.Authority = Configuration["OAuth:Authority"];
+                    var authorityUrl = Configuration.GetServiceUri("atomic-unifiedauth-web")!.ToString();
+                    options.Authority = authorityUrl;
                     options.Audience = Configuration["OAuth:Audience"];
-                    options.TokenValidationParameters.ValidIssuer = Configuration["AuthServer:Authority"];
+                    options.TokenValidationParameters.ValidIssuer = authorityUrl;
                 });
 
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
-            var connectionString = Configuration.GetConnectionString("IdentityServer");
+            var connectStringFromTye = Configuration.GetConnectionString("postgres-db");
+            if (string.IsNullOrEmpty(connectStringFromTye))
+                throw new Exception("ConnectString is missed from Tye");
+            connectStringFromTye += ";Database=IdentityServer";
             services.AddIdentityServer()
                 .AddConfigurationStore(options =>
                 {
-                    options.ConfigureDbContext = b => b.UseNpgsql(connectionString,
-                        sql => sql.MigrationsAssembly(migrationsAssembly));
+                    options.ConfigureDbContext = b => b.UseNpgsql(connectStringFromTye,
+                        builder =>
+                        {
+                            builder.MigrationsAssembly(migrationsAssembly);
+                            builder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null);
+                        });
                 })
                 .AddOperationalStore(options =>
                 {
-                    options.ConfigureDbContext = b => b.UseNpgsql(connectionString,
-                        sql => sql.MigrationsAssembly(migrationsAssembly));
+                    options.ConfigureDbContext = b => b.UseNpgsql(connectStringFromTye,
+                        builder =>
+                        {
+                            builder.MigrationsAssembly(migrationsAssembly);
+                            builder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null);
+                        });
                 });
 
             services.AddControllers();

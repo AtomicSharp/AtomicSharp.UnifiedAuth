@@ -1,0 +1,18 @@
+name: atomic
+services:
+  - name: atomic-unifiedauth-web
+    project: applications/Atomic.UnifiedAuth.Web/Atomic.UnifiedAuth.Web.csproj
+    bindings:
+      - protocol: https
+        port: 5001
+
+  - name: atomic-admin-host
+    project: applications/Atomic.Admin.Host/Atomic.Admin.Host.csproj
+    bindings:
+      - protocol: https
+        port: 5002
+
+  - name: postgres-db
+    external: true
+    bindings:
+      - connectionString: Host=localhost;UserName=developer;Password=Pas5w0rd*

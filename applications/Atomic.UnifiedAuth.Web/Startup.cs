@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Atomic.UnifiedAuth.Web.Controllers.Account;
 using Atomic.UnifiedAuth.Web.Controllers.Consent;
 using Atomic.UnifiedAuth.Web.Data;
@@ -28,14 +29,23 @@ namespace Atomic.UnifiedAuth.Web
         {
             services.AddControllersWithViews();
 
+            var connectStringFromTye = Configuration.GetConnectionString("postgres-db");
+            if (string.IsNullOrEmpty(connectStringFromTye))
+                throw new Exception("ConnectString is missed from Tye!");
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(Configuration.GetConnectionString("Identity"))
+                {
+                    options.UseNpgsql(connectStringFromTye + ";Database=Identity", builder =>
+                    {
+                        builder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null);
+                    });
+                }
             );
 
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
+            connectStringFromTye += ";Database=IdentityServer";
             services.AddIdentityServer(options =>
                 {
                     options.Events.RaiseErrorEvents = true;
@@ -47,13 +57,17 @@ namespace Atomic.UnifiedAuth.Web
                 .AddAspNetIdentity<IdentityUser>()
                 .AddConfigurationStore(options =>
                 {
-                    options.ConfigureDbContext = b => b.UseNpgsql(
-                        Configuration.GetConnectionString("IdentityServer"));
+                    options.ConfigureDbContext = b => b.UseNpgsql(connectStringFromTye, builder =>
+                    {
+                        builder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null);
+                    });
                 })
                 .AddOperationalStore(options =>
                 {
-                    options.ConfigureDbContext = b => b.UseNpgsql(
-                        Configuration.GetConnectionString("IdentityServer"));
+                    options.ConfigureDbContext = b => b.UseNpgsql(connectStringFromTye, builder =>
+                    {
+                        builder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null);
+                    });
                 })
                 // not recommended for production - you need to store your key material somewhere secure
                 .AddDeveloperSigningCredential();
@@ -92,7 +106,7 @@ namespace Atomic.UnifiedAuth.Web
         private async Task InitializeDatabase(IApplicationBuilder app)
         {
             using var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
-            serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.EnsureCreated();
+            await serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.EnsureCreatedAsync();
 
             var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
             if (await userManager.FindByNameAsync("alice") == null)

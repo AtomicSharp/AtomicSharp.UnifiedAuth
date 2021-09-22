@@ -544,5 +544,6 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,csharp,jetbrains+all,macos,windows
 
+.tye
 *.jwk
 appsettings.*.json
