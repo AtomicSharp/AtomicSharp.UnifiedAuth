@@ -1,9 +1,8 @@
 using System;
 using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 
-namespace AppTestBase.Microsoft.Extensions.DependencyInjection
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionShouldlyExtensions
     {

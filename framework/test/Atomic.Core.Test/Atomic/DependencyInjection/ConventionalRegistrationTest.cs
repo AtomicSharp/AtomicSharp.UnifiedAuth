@@ -1,5 +1,4 @@
 ﻿using System;
-using AppTestBase.Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -13,10 +12,10 @@ namespace Atomic.DependencyInjection
             var services = new ServiceCollection();
 
             services.AddConventionalRegistrar(new MyCustomConventionalRegistrar());
-            services.AddTypes(typeof(RegisteredByCustomConvention), typeof(NoneRegisteredClass));
+            services.AddTypes(typeof(RegisteredByCustomConvention), typeof(NonRegisteredClass));
 
             services.ShouldContainSingleton(typeof(RegisteredByCustomConvention));
-            services.ShouldNotContainService(typeof(NoneRegisteredClass));
+            services.ShouldNotContainService(typeof(NonRegisteredClass));
         }
 
         [Fact]
@@ -26,12 +25,12 @@ namespace Atomic.DependencyInjection
 
             services.AddConventionalRegistrar(new DefaultConventionalRegistrar());
             services.AddTypes(
-                typeof(NoneRegisteredClass),
+                typeof(NonRegisteredClass),
                 typeof(RegisteredByDependencyAttribute),
                 typeof(RegisteredByDependencyInterface)
             );
 
-            services.ShouldNotContainService(typeof(NoneRegisteredClass));
+            services.ShouldNotContainService(typeof(NonRegisteredClass));
             services.ShouldContainTransient(typeof(RegisteredByDependencyAttribute));
             services.ShouldContainScoped(typeof(RegisteredByDependencyInterface));
         }
@@ -94,7 +93,7 @@ namespace Atomic.DependencyInjection
             }
         }
 
-        public class NoneRegisteredClass
+        public class NonRegisteredClass
         {
         }
 

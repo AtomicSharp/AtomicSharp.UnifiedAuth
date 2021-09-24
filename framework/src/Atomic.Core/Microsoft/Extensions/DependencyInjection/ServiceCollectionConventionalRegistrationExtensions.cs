@@ -18,7 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static List<IConventionalRegistrar> GetConventionalRegistrars(
             this IServiceCollection services,
-            bool withDefault = true
+            bool withDefaultIfNull = true
         )
         {
             var conventionalRegistrars =
@@ -26,7 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
             if (conventionalRegistrars == null)
             {
                 conventionalRegistrars = new List<IConventionalRegistrar>();
-                if (withDefault) conventionalRegistrars.Add(new DefaultConventionalRegistrar());
+                if (withDefaultIfNull) conventionalRegistrars.Add(new DefaultConventionalRegistrar());
                 services.AddObjectAccessor(conventionalRegistrars);
             }
 

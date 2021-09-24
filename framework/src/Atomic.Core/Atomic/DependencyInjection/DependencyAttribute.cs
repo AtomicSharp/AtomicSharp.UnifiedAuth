@@ -8,6 +8,10 @@ namespace Atomic.DependencyInjection
     /// </summary>
     public class DependencyAttribute : Attribute
     {
+        public DependencyAttribute()
+        {
+        }
+
         public DependencyAttribute(ServiceLifetime lifeTime)
         {
             LifeTime = lifeTime;
