@@ -6,7 +6,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionObjectAccessorExtensions
     {
-        public static ObjectAccessor<T> TryAddObjectAccessor<T>(this IServiceCollection services)
+        public static ObjectAccessor<T> GetOrAddObjectAccessor<T>(this IServiceCollection services)
         {
             if (services.Any(s => s.ServiceType == typeof(ObjectAccessor<T>)))
             {

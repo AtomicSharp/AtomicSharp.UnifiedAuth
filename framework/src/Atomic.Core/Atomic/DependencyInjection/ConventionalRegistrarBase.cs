@@ -8,9 +8,6 @@ namespace Atomic.DependencyInjection
 {
     public abstract class ConventionalRegistrarBase : IConventionalRegistrar
     {
-        /// <summary>
-        /// inject all the services in an assembly to the service container
-        /// </summary>
         public virtual void AddAssembly(IServiceCollection services, Assembly assembly)
         {
             var types = AssemblyHelper
@@ -33,11 +30,6 @@ namespace Atomic.DependencyInjection
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="services"></param>
-        /// <param name="type"></param>
         public abstract void AddType(IServiceCollection services, Type type);
     }
 }

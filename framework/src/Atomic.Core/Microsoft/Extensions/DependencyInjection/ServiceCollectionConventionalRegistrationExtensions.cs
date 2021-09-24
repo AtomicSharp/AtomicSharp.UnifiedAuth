@@ -12,22 +12,21 @@ namespace Microsoft.Extensions.DependencyInjection
             IConventionalRegistrar registrar
         )
         {
-            GetOrCreateRegistrarList(services).Add(registrar);
+            services.GetConventionalRegistrars().Add(registrar);
             return services;
         }
 
-        private static List<IConventionalRegistrar> GetConventionalRegistrars(this IServiceCollection services)
-        {
-            return GetOrCreateRegistrarList(services);
-        }
-
-        private static ConventionalRegistrarList GetOrCreateRegistrarList(IServiceCollection services)
+        public static List<IConventionalRegistrar> GetConventionalRegistrars(
+            this IServiceCollection services,
+            bool withDefault = true
+        )
         {
             var conventionalRegistrars =
-                services.GetSingletonInstanceOrNull<IObjectAccessor<ConventionalRegistrarList>>()?.Value;
+                services.GetSingletonInstanceOrNull<IObjectAccessor<List<IConventionalRegistrar>>>()?.Value;
             if (conventionalRegistrars == null)
             {
-                conventionalRegistrars = new ConventionalRegistrarList { new DefaultConventionalRegistrar() };
+                conventionalRegistrars = new List<IConventionalRegistrar>();
+                if (withDefault) conventionalRegistrars.Add(new DefaultConventionalRegistrar());
                 services.AddObjectAccessor(conventionalRegistrars);
             }
 
