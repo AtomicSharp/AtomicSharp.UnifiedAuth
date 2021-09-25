@@ -14,6 +14,7 @@ ProjectSection(SolutionItems) = preProject
 	.gitignore = .gitignore
 	docker-compose.yml = docker-compose.yml
 	tye.yaml = tye.yaml
+	common.props = common.props
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "framework", "framework", "{69CF4A32-F96B-4639-9A6D-319D04402833}"
