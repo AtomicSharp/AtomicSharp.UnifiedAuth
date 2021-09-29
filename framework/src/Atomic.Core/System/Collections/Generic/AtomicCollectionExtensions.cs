@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Atomic.Utils;
 
 namespace System.Collections.Generic
 {
@@ -13,6 +14,8 @@ namespace System.Collections.Generic
         /// <returns>Returns True if added, returns False if not.</returns>
         public static bool AddIfNotContains<T>([NotNull] this ICollection<T> source, T item)
         {
+            Check.NotNull(source, nameof(source));
+
             if (source.Contains(item))
             {
                 return false;

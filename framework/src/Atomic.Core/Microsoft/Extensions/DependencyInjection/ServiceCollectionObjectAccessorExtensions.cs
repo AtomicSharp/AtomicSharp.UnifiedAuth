@@ -1,6 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Atomic.DependencyInjection;
+using Atomic.ExceptionHandling;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -33,8 +33,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             if (services.Any(s => s.ServiceType == typeof(ObjectAccessor<T>)))
             {
-                throw new Exception("An object accessor is registered before for type: " +
-                                    typeof(T).AssemblyQualifiedName);
+                throw new AtomicException("An object accessor is registered before for type: " +
+                                          typeof(T).AssemblyQualifiedName);
             }
 
             //Add to the beginning for fast retrieve
