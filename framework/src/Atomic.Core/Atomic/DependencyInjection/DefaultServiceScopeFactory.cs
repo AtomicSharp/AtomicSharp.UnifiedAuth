@@ -2,6 +2,11 @@
 
 namespace Atomic.DependencyInjection
 {
+    [ExposeServices(
+        typeof(IServiceScopeFactory),
+        typeof(IHybridServiceScopeFactory),
+        typeof(DefaultServiceScopeFactory)
+    )]
     public class DefaultServiceScopeFactory : IHybridServiceScopeFactory, ITransientDependency
     {
         public DefaultServiceScopeFactory(IServiceScopeFactory factory)
