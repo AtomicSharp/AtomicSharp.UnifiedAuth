@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Atomic.Modularity
@@ -10,6 +11,8 @@ namespace Atomic.Modularity
         /// whether register service types automatically
         /// </summary>
         protected internal bool SkipAutoServiceRegistration { get; protected set; }
+
+        protected internal IServiceCollection Services { get; internal set; }
 
         public virtual void PreConfigureServices(IServiceCollection services)
         {
@@ -27,11 +30,11 @@ namespace Atomic.Modularity
         {
         }
 
-        public virtual void OnPostApplicationInitialization(IServiceProvider serviceProvider)
+        public virtual void OnApplicationInitialization(IServiceProvider serviceProvider)
         {
         }
 
-        public virtual void OnApplicationInitialization(IServiceProvider serviceProvider)
+        public virtual void OnPostApplicationInitialization(IServiceProvider serviceProvider)
         {
         }
 
@@ -55,6 +58,48 @@ namespace Atomic.Modularity
             {
                 throw new ArgumentException("Given type is not an Atomic module: " + moduleType.AssemblyQualifiedName);
             }
+        }
+
+        protected void Configure<TOptions>(Action<TOptions> configureOptions)
+            where TOptions : class
+        {
+            Services.Configure(configureOptions);
+        }
+
+        protected void Configure<TOptions>(string name, Action<TOptions> configureOptions)
+            where TOptions : class
+        {
+            Services.Configure(name, configureOptions);
+        }
+
+        protected void Configure<TOptions>(IConfiguration configuration)
+            where TOptions : class
+        {
+            Services.Configure<TOptions>(configuration);
+        }
+
+        protected void Configure<TOptions>(IConfiguration configuration, Action<BinderOptions> configureBinder)
+            where TOptions : class
+        {
+            Services.Configure<TOptions>(configuration, configureBinder);
+        }
+
+        protected void Configure<TOptions>(string name, IConfiguration configuration)
+            where TOptions : class
+        {
+            Services.Configure<TOptions>(name, configuration);
+        }
+
+        protected void PostConfigure<TOptions>(Action<TOptions> configureOptions)
+            where TOptions : class
+        {
+            Services.PostConfigure(configureOptions);
+        }
+
+        protected void PostConfigureAll<TOptions>(Action<TOptions> configureOptions)
+            where TOptions : class
+        {
+            Services.PostConfigureAll(configureOptions);
         }
     }
 }

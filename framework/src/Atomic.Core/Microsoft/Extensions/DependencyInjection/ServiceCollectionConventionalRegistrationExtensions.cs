@@ -43,6 +43,11 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
+        public static IServiceCollection AddAssemblyOf<T>(this IServiceCollection services)
+        {
+            return services.AddAssembly(typeof(T).GetTypeInfo().Assembly);
+        }
+
         public static IServiceCollection AddTypes(this IServiceCollection services, params Type[] types)
         {
             foreach (var registrar in services.GetConventionalRegistrars())

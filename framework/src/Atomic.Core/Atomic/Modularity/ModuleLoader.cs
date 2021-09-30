@@ -35,7 +35,9 @@ namespace Atomic.Modularity
         private List<IAtomicModuleDescriptor> GetDescriptors(IServiceCollection services, Type startupModuleType)
         {
             var modules = new List<AtomicModuleDescriptor>();
-            var logger = services.GetSingletonInstance<ILogger<ModuleLoader>>();
+            var logger = LoggerFactory.Create(builder =>
+            {
+            }).CreateLogger<ModuleLoader>();
 
             // get all the depended modules
             foreach (var moduleType in AtomicModuleHelper.FindAllModuleTypes(startupModuleType, logger))

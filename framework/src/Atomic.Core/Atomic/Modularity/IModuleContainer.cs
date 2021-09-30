@@ -6,6 +6,6 @@ namespace Atomic.Modularity
     public interface IModuleContainer
     {
         [NotNull]
-        IReadOnlyList<IAtomicModule> Modules { get; }
+        IReadOnlyList<IAtomicModuleDescriptor> Modules { get; }
     }
 }

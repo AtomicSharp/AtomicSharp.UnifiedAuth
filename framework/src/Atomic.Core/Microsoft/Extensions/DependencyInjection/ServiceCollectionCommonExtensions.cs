@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
+using Atomic.ExceptionHandling;
+using Atomic.Utils;
+using JetBrains.Annotations;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -17,11 +21,59 @@ namespace Microsoft.Extensions.DependencyInjection
             var service = services.GetSingletonInstanceOrNull<T>();
             if (service == null)
             {
-                throw new InvalidOperationException("Could not find singleton service: " +
-                                                    typeof(T).AssemblyQualifiedName);
+                throw new InvalidOperationException(
+                    "Could not find singleton service: " + typeof(T).AssemblyQualifiedName);
             }
 
             return service;
+        }
+
+        public static IServiceProvider BuildServiceProviderFromFactory([NotNull] this IServiceCollection services)
+        {
+            Check.NotNull(services, nameof(services));
+
+            foreach (var service in services)
+            {
+                var factoryInterface = service.ImplementationInstance?.GetType()
+                    .GetTypeInfo()
+                    .GetInterfaces()
+                    .FirstOrDefault(i => i.GetTypeInfo().IsGenericType &&
+                                         i.GetGenericTypeDefinition() == typeof(IServiceProviderFactory<>));
+
+                if (factoryInterface == null)
+                {
+                    continue;
+                }
+
+                var containerBuilderType = factoryInterface.GenericTypeArguments[0];
+                return (IServiceProvider)typeof(ServiceCollectionCommonExtensions)
+                    .GetTypeInfo()
+                    .GetMethods()
+                    .Single(m => m.Name == nameof(BuildServiceProviderFromFactory) && m.IsGenericMethod)
+                    .MakeGenericMethod(containerBuilderType)
+                    .Invoke(null, new object[] { services, null });
+            }
+
+            return services.BuildServiceProvider();
+        }
+
+
+        public static IServiceProvider BuildServiceProviderFromFactory<TContainerBuilder>(
+            [NotNull] this IServiceCollection services
+        )
+        {
+            Check.NotNull(services, nameof(services));
+
+            var serviceProviderFactory =
+                services.GetSingletonInstanceOrNull<IServiceProviderFactory<TContainerBuilder>>();
+            if (serviceProviderFactory == null)
+            {
+                throw new AtomicException(
+                    $"Could not find {typeof(IServiceProviderFactory<TContainerBuilder>).FullName} in {services}.");
+            }
+
+            var builder = serviceProviderFactory.CreateBuilder(services);
+            return serviceProviderFactory.CreateServiceProvider(builder);
         }
     }
 }
