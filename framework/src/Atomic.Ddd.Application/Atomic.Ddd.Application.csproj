@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Atomic.Core\Atomic.Core.csproj" />
+    <ProjectReference Include="..\Atomic.Modularity\Atomic.Modularity.csproj" />
   </ItemGroup>
 
   <ItemGroup>

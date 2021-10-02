@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="../../../common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>Atomic.Extensions.DependencyInjection</AssemblyName>
+    <PackageId>Atomic.Extensions.DependencyInjection</PackageId>
+    <RootNamespace />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Atomic.ExceptionHandling\Atomic.ExceptionHandling.csproj" />
+    <ProjectReference Include="..\Atomic.Utils\Atomic.Utils.csproj" />
+  </ItemGroup>
+
+</Project>

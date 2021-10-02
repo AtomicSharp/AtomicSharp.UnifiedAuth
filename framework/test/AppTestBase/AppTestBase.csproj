@@ -19,8 +19,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Atomic.Core\Atomic.Core.csproj" />
-  </ItemGroup>
-
 </Project>

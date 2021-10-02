@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="../../../common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>Atomic.ExceptionHandling</AssemblyName>
+    <PackageId>Atomic.ExceptionHandling</PackageId>
+    <RootNamespace />
+  </PropertyGroup>
+
+</Project>
