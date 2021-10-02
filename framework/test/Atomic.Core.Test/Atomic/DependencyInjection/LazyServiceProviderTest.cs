@@ -1,5 +1,4 @@
 ﻿using Atomic.Modularity;
-using DefaultNamespace;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using Xunit;

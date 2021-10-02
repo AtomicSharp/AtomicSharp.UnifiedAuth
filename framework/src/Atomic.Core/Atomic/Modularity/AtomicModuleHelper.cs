@@ -25,7 +25,12 @@ namespace Atomic.Modularity
         {
             AtomicModule.CheckAtomicModuleType(moduleType);
 
-            moduleTypes.AddIfNotContains(moduleType);
+            if (moduleTypes.Contains(moduleType))
+            {
+                return;
+            }
+
+            moduleTypes.Add(moduleType);
             logger.Log(LogLevel.Information, $"{new string(' ', depth * 2)}- {moduleType.FullName}");
 
             foreach (var dependedModuleType in FindDependedModuleTypes(moduleType))

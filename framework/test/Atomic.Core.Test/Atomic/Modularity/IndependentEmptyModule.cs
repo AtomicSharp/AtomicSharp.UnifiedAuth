@@ -1,8 +1,7 @@
 ﻿using System;
-using Atomic.Modularity;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DefaultNamespace
+namespace Atomic.Modularity
 {
     public class IndependentEmptyModule : AtomicModule
     {

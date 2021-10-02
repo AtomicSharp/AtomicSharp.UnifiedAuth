@@ -33,7 +33,7 @@ namespace Atomic
             SetServiceProvider(serviceProvider);
         }
 
-        public void Initialize([NotNull] IServiceProvider serviceProvider)
+        public void Initialize(IServiceProvider serviceProvider)
         {
             Check.NotNull(serviceProvider, nameof(serviceProvider));
 

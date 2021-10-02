@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Atomic.ExceptionHandling;
 using Atomic.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -63,13 +62,6 @@ namespace Atomic.Modularity
             foreach (var dependedModuleType in AtomicModuleHelper.FindDependedModuleTypes(module.Type))
             {
                 var dependedModule = modules.FirstOrDefault(m => m.Type == dependedModuleType);
-                if (dependedModule == null)
-                {
-                    throw new AtomicException("Could not find a depended module " +
-                                              dependedModuleType.AssemblyQualifiedName +
-                                              " for " + module.Type.AssemblyQualifiedName);
-                }
-
                 module.AddDependency(dependedModule);
             }
         }
