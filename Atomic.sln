@@ -39,6 +39,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Atomic.ExceptionHandling", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Atomic.Extensions.DependencyInjection.Test", "framework\test\Atomic.Extensions.DependencyInjection.Test\Atomic.Extensions.DependencyInjection.Test.csproj", "{BC2B51BE-A32A-45EB-86CE-C03C8B6AE51F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Atomic.Utils.Test", "framework\test\Atomic.Utils.Test\Atomic.Utils.Test.csproj", "{9400C919-D4DB-413B-9276-3E57939330B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -172,6 +174,18 @@ Global
 		{BC2B51BE-A32A-45EB-86CE-C03C8B6AE51F}.Release|x64.Build.0 = Release|Any CPU
 		{BC2B51BE-A32A-45EB-86CE-C03C8B6AE51F}.Release|x86.ActiveCfg = Release|Any CPU
 		{BC2B51BE-A32A-45EB-86CE-C03C8B6AE51F}.Release|x86.Build.0 = Release|Any CPU
+		{9400C919-D4DB-413B-9276-3E57939330B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9400C919-D4DB-413B-9276-3E57939330B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9400C919-D4DB-413B-9276-3E57939330B1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9400C919-D4DB-413B-9276-3E57939330B1}.Debug|x64.Build.0 = Debug|Any CPU
+		{9400C919-D4DB-413B-9276-3E57939330B1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9400C919-D4DB-413B-9276-3E57939330B1}.Debug|x86.Build.0 = Debug|Any CPU
+		{9400C919-D4DB-413B-9276-3E57939330B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9400C919-D4DB-413B-9276-3E57939330B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9400C919-D4DB-413B-9276-3E57939330B1}.Release|x64.ActiveCfg = Release|Any CPU
+		{9400C919-D4DB-413B-9276-3E57939330B1}.Release|x64.Build.0 = Release|Any CPU
+		{9400C919-D4DB-413B-9276-3E57939330B1}.Release|x86.ActiveCfg = Release|Any CPU
+		{9400C919-D4DB-413B-9276-3E57939330B1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{46590F08-B9F7-4063-907C-168D9B149147} = {F7C0BD24-1089-4D5D-8FFB-A8AC119752FB}
@@ -186,5 +200,6 @@ Global
 		{AF779ED3-47E1-4CF9-9605-BCD8ACF0D19B} = {DAF3FC47-2704-41E6-946F-1BF9DC7AB3EF}
 		{1FA4CA1B-658F-4A62-97DB-E536C6E16007} = {DAF3FC47-2704-41E6-946F-1BF9DC7AB3EF}
 		{BC2B51BE-A32A-45EB-86CE-C03C8B6AE51F} = {0BFD4C51-ED60-4750-B947-079625C0DFC9}
+		{9400C919-D4DB-413B-9276-3E57939330B1} = {0BFD4C51-ED60-4750-B947-079625C0DFC9}
 	EndGlobalSection
 EndGlobal
