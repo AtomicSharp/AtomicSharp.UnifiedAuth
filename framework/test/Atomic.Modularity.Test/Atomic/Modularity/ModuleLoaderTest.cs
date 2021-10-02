@@ -12,6 +12,7 @@ namespace Atomic.Modularity
         {
             var moduleLoader = new ModuleLoader();
             var modules = moduleLoader.LoadModules(new ServiceCollection(), typeof(MyStartupModule));
+
             modules.Length.ShouldBe(2);
             modules[0].Type.ShouldBe(typeof(IndependentEmptyModule));
             modules[1].Type.ShouldBe(typeof(MyStartupModule));
@@ -21,10 +22,24 @@ namespace Atomic.Modularity
         public void Should_Throw_If_Has_Cycle_Dependency()
         {
             var moduleLoader = new ModuleLoader();
-            Should.Throw<ArgumentException>(() =>
-            {
-                moduleLoader.LoadModules(new ServiceCollection(), typeof(ModuleA));
-            });
+
+            var exception = Should.Throw<ArgumentException>(() =>
+                moduleLoader.LoadModules(new ServiceCollection(), typeof(ModuleA))
+            );
+            exception.Message.ShouldBe(
+                "Cyclic dependency found! Item: [AtomicModuleDescriptor Atomic.Modularity.ModuleA]");
+        }
+
+        [Fact]
+        public void Should_Throw_If_Not_Depends_On_Module()
+        {
+            var moduleLoader = new ModuleLoader();
+
+            var exception = Should.Throw<ArgumentException>(() =>
+                moduleLoader.LoadModules(new ServiceCollection(), typeof(ErrorModule))
+            );
+            exception.Message.ShouldBe(
+                $"Given type is not an Atomic module: {typeof(NotAtomicModuleClass).AssemblyQualifiedName}");
         }
     }
 
@@ -45,6 +60,15 @@ namespace Atomic.Modularity
 
     [DependsOn(typeof(ModuleA))]
     public class ModuleC : AtomicModule
+    {
+    }
+
+    [DependsOn(typeof(NotAtomicModuleClass))]
+    public class ErrorModule : AtomicModule
+    {
+    }
+
+    public class NotAtomicModuleClass
     {
     }
 }

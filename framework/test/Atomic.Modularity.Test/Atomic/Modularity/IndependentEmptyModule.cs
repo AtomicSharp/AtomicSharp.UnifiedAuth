@@ -22,7 +22,6 @@ namespace Atomic.Modularity
         public override void PreConfigureServices(IServiceCollection services)
         {
             PreConfigureServicesIsCalled = true;
-            SkipAutoServiceRegistration = true;
         }
 
         public override void ConfigureServices(IServiceCollection services)

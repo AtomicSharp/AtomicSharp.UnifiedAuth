@@ -34,9 +34,8 @@ namespace Atomic
 
             var anotherServiceProvider = services.BuildServiceProvider();
             Should.Throw<AtomicException>(() =>
-            {
-                application.SetServiceProvider(anotherServiceProvider);
-            });
+                application.SetServiceProvider(anotherServiceProvider)
+            );
         }
     }
 }

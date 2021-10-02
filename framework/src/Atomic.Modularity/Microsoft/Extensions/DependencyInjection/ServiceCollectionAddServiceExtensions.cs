@@ -1,6 +1,5 @@
 ﻿using Atomic;
 using Atomic.Modularity;
-using Atomic.Reflection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -14,18 +13,11 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         internal static void AddCoreAtomicServices(
-            this IServiceCollection services,
-            IAtomicApplication abpApplication
+            this IServiceCollection services
         )
         {
             var moduleLoader = new ModuleLoader();
-            var assemblyFinder = new AssemblyFinder(abpApplication);
-            var typeFinder = new TypeFinder(assemblyFinder);
-
             services.TryAddSingleton<IModuleLoader>(moduleLoader);
-            services.TryAddSingleton<IAssemblyFinder>(assemblyFinder);
-            services.TryAddSingleton<ITypeFinder>(typeFinder);
-
             services.AddAssemblyOf<IAtomicApplication>();
         }
     }

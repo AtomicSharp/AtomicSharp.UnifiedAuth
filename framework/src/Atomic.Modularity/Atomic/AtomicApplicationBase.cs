@@ -24,7 +24,7 @@ namespace Atomic
             services.AddSingleton<IModuleContainer>(this);
 
             services.AddCoreServices();
-            services.AddCoreAtomicServices(this);
+            services.AddCoreAtomicServices();
 
             Modules = LoadModules(services);
             ConfigureServices();
@@ -156,7 +156,7 @@ namespace Atomic
                 catch (Exception ex)
                 {
                     throw new AtomicException(
-                        $"An error occurred during {nameof(module.Instance.PreConfigureServices)} phase of the module {module.Type.AssemblyQualifiedName}. See the inner exception for details.",
+                        $"An error occurred during {nameof(module.Instance.ConfigureServices)} phase of the module {module.Type.AssemblyQualifiedName}. See the inner exception for details.",
                         ex);
                 }
             }
