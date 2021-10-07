@@ -13,7 +13,8 @@ namespace Microsoft.Extensions.DependencyInjection
             Type implementationType = null
         )
         {
-            var serviceDescriptor = services.FirstOrDefault(s => s.ServiceType == serviceType);
+            var serviceDescriptor =
+                services.FirstOrDefault(s => s.ServiceType == serviceType && s.Lifetime == lifetime);
 
             serviceDescriptor.ShouldNotBeNull();
 
@@ -27,7 +28,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 serviceDescriptor.ImplementationType.ShouldBe(implementationType ?? serviceType);
 
             serviceDescriptor.ImplementationInstance.ShouldBeNull();
-            serviceDescriptor.Lifetime.ShouldBe(lifetime);
         }
 
         public static void ShouldNotContainService(this IServiceCollection services, Type serviceType)

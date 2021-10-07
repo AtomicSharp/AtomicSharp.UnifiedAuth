@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Atomic.Extensions.DependencyInjection;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -22,6 +23,11 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             return service;
+        }
+
+        public static IServiceCollection AddAtomicDependencyInjection(this IServiceCollection services)
+        {
+            return services.AddSingleton<ILazyServiceProvider, DefaultLazyServiceProvider>();
         }
     }
 }
