@@ -1,4 +1,5 @@
 using Atomic.AspNetCore.Authorization;
+using Atomic.AspNetCore.Authorization.OAuth;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -7,7 +8,13 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddAtomicAuthorization(this IServiceCollection services)
         {
             services.AddAuthorizationCore();
-            return services.AddAssemblyOf<AtomicAuthorizationModule>();
+            services.AddAssemblyOf<AtomicAuthorizationModule>();
+            services.Configure<AtomicAuthorizationOptions>(options =>
+            {
+                options.AuthorizationPolicyProviders.TryAdd<IScopeAuthorizationPolicyProvider>();
+            });
+
+            return services;
         }
     }
 }

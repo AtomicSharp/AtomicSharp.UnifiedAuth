@@ -1,6 +1,8 @@
 using Atomic.AspNetCore.Authorization;
 using Atomic.AspNetCore.Authorization.OAuth;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
+using Shouldly;
 using Xunit;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -26,6 +28,19 @@ namespace Microsoft.Extensions.DependencyInjection
                 typeof(IScopeAuthorizationPolicyProvider),
                 typeof(ScopeAuthorizationPolicyProvider)
             );
+        }
+
+        [Fact]
+        public void Should_Add_Scope_Policy_Provider()
+        {
+            var services = new ServiceCollection();
+            services.AddAtomicDependencyInjection();
+            services.AddAtomicAuthorization();
+
+            var sp = services.BuildServiceProvider();
+            var options = sp.GetRequiredService<IOptions<AtomicAuthorizationOptions>>().Value;
+            options.AuthorizationPolicyProviders.Count.ShouldBe(1);
+            options.AuthorizationPolicyProviders[0].ShouldBe(typeof(IScopeAuthorizationPolicyProvider));
         }
     }
 }

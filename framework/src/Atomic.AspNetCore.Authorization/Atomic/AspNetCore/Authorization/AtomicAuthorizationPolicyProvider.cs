@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Atomic.AspNetCore.Authorization.OAuth;
 using Atomic.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
@@ -11,30 +10,55 @@ namespace Atomic.AspNetCore.Authorization
     {
         public AtomicAuthorizationPolicyProvider(
             IOptions<AuthorizationOptions> options,
+            IOptions<AtomicAuthorizationOptions> atomicAuthorizationOptions,
             ILazyServiceProvider lazyServiceProvider
         )
         {
             FallbackPolicyProvider = new DefaultAuthorizationPolicyProvider(options);
             LazyServiceProvider = lazyServiceProvider;
+            AtomicAuthorizationOptions = atomicAuthorizationOptions.Value;
         }
 
         protected DefaultAuthorizationPolicyProvider FallbackPolicyProvider { get; }
 
         protected ILazyServiceProvider LazyServiceProvider { get; }
 
-        protected IScopeAuthorizationPolicyProvider ScopePolicyProvider =>
-            LazyServiceProvider.LazyGetRequiredService<IScopeAuthorizationPolicyProvider>();
+        protected AtomicAuthorizationOptions AtomicAuthorizationOptions { get; }
 
         public virtual async Task<AuthorizationPolicy> GetPolicyAsync(string policyName)
         {
-            return await ScopePolicyProvider.GetPolicyAsync(policyName)
-                   ?? await FallbackPolicyProvider.GetPolicyAsync(policyName);
+            foreach (var providerType in AtomicAuthorizationOptions.AuthorizationPolicyProviders)
+            {
+                var provider = (IAuthorizationPolicyProvider)LazyServiceProvider.LazyGetRequiredService(providerType);
+                var policy = await provider.GetPolicyAsync(policyName);
+                if (policy != null) return policy;
+            }
+
+            return await FallbackPolicyProvider.GetPolicyAsync(policyName);
         }
 
-        public virtual Task<AuthorizationPolicy> GetDefaultPolicyAsync()
-            => FallbackPolicyProvider.GetDefaultPolicyAsync();
+        public virtual async Task<AuthorizationPolicy> GetDefaultPolicyAsync()
+        {
+            foreach (var providerType in AtomicAuthorizationOptions.AuthorizationPolicyProviders)
+            {
+                var provider = (IAuthorizationPolicyProvider)LazyServiceProvider.LazyGetRequiredService(providerType);
+                var policy = await provider.GetDefaultPolicyAsync();
+                if (policy != null) return policy;
+            }
 
-        public Task<AuthorizationPolicy> GetFallbackPolicyAsync()
-            => FallbackPolicyProvider.GetFallbackPolicyAsync();
+            return await FallbackPolicyProvider.GetDefaultPolicyAsync();
+        }
+
+        public virtual async Task<AuthorizationPolicy> GetFallbackPolicyAsync()
+        {
+            foreach (var providerType in AtomicAuthorizationOptions.AuthorizationPolicyProviders)
+            {
+                var provider = (IAuthorizationPolicyProvider)LazyServiceProvider.LazyGetRequiredService(providerType);
+                var policy = await provider.GetFallbackPolicyAsync();
+                if (policy != null) return policy;
+            }
+
+            return await FallbackPolicyProvider.GetFallbackPolicyAsync();
+        }
     }
 }
