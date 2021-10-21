@@ -12,8 +12,9 @@ namespace Atomic.AspNetCore.Authorization.OAuth
 {
     public class ScopeRequirementHandlerTest
     {
-        [Fact]
-        public async Task Should_Handle_Scope_Requirement()
+        private ServiceProvider _serviceProvider;
+
+        public ScopeRequirementHandlerTest()
         {
             var services = new ServiceCollection();
             services.AddLogging();
@@ -32,6 +33,12 @@ namespace Atomic.AspNetCore.Authorization.OAuth
                 });
             });
 
+            _serviceProvider = services.BuildServiceProvider();
+        }
+
+        [Fact]
+        public async Task Should_Handle_Scope_Requirement_Success()
+        {
             var claims = new List<Claim>
             {
                 new(JwtClaimTypes.Scope, "Author.Get")
@@ -39,13 +46,43 @@ namespace Atomic.AspNetCore.Authorization.OAuth
             var identity = new ClaimsIdentity(claims);
             var claimsPrincipal = new ClaimsPrincipal(identity);
 
-            var sp = services.BuildServiceProvider();
-            var authService = sp.GetRequiredService<IAuthorizationService>();
+            var authService = _serviceProvider.GetRequiredService<IAuthorizationService>();
 
             var result = await authService.AuthorizeAsync(claimsPrincipal, "Author.Get");
             result.Succeeded.ShouldBe(true);
+        }
 
-            result = await authService.AuthorizeAsync(claimsPrincipal, "Author.Create");
+        [Fact]
+        public async Task Should_Handle_Scope_Requirement_Fail_For_Non_Scope()
+        {
+            var identity = new ClaimsIdentity();
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+
+            var authService = _serviceProvider.GetRequiredService<IAuthorizationService>();
+
+            var result = await authService.AuthorizeAsync(claimsPrincipal, "Author.Create");
+            result.Succeeded.ShouldBe(false);
+            result.Failure.ShouldNotBeNull();
+            result.Failure.FailedRequirements.Count().ShouldBe(1);
+            var requirement = result.Failure.FailedRequirements.First();
+            requirement.ShouldBeAssignableTo<ScopeRequirement>();
+            var failedRequirement = (ScopeRequirement)requirement;
+            failedRequirement.ScopeName.ShouldBe("Author.Create");
+        }
+
+        [Fact]
+        public async Task Should_Handle_Scope_Requirement_Fail_For_Lack_Of_Scope()
+        {
+            var claims = new List<Claim>
+            {
+                new(JwtClaimTypes.Scope, "Author.Get")
+            };
+            var identity = new ClaimsIdentity(claims);
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+
+            var authService = _serviceProvider.GetRequiredService<IAuthorizationService>();
+
+            var result = await authService.AuthorizeAsync(claimsPrincipal, "Author.Create");
             result.Succeeded.ShouldBe(false);
             result.Failure.ShouldNotBeNull();
             result.Failure.FailedRequirements.Count().ShouldBe(1);

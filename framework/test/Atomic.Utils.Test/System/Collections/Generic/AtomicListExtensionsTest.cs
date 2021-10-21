@@ -21,7 +21,7 @@ namespace System.Collections.Generic
             list[0].ShouldBe(1);
 
             // throw if it is out of range
-            var exception = Should.Throw<IndexOutOfRangeException>(() => list.MoveItem(num => num == 1, 8));
+            var exception = Should.Throw<IndexOutOfRangeException>(() => list.MoveItem(null, 8));
             exception.Message.ShouldBe($"targetIndex should be between 0 and {list.Count - 1}");
         }
     }
