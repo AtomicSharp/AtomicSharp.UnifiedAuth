@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Atomic.Extensions.DependencyInjection\Atomic.Extensions.DependencyInjection.csproj" />
-    <ProjectReference Include="..\Atomic.Modularity\Atomic.Modularity.csproj" />
   </ItemGroup>
 
 </Project>

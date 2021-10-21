@@ -8,7 +8,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddAtomicAuthorization(this IServiceCollection services)
         {
             services.AddAuthorizationCore();
-            services.AddAssemblyOf<AtomicAuthorizationModule>();
+            services.AddAssemblyOf<AuthorizationPolicyProviderBase>();
             services.Configure<AtomicAuthorizationOptions>(options =>
             {
                 options.AuthorizationPolicyProviders.TryAdd<IScopeAuthorizationPolicyProvider>();
